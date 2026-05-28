@@ -29,7 +29,7 @@ Deploy model with a three-tier decision system:
 - ❌ **Auto-decline:** risk score > 0.45
 
 ## 🚀 Live Demo
-[Click here to try the interactive app](#) ← we'll add this link after Streamlit deployment
+[Click here to try the interactive app](https://credit-risk-scoring-badr.streamlit.app/)
 
 ## 🛠️ Tech Stack
 Python · scikit-learn · Gradient Boosting · SMOTE · Streamlit · pandas · seaborn
