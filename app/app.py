@@ -7,13 +7,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
 
-# Train model on first load (cached so it only runs once)
 @st.cache_resource
 def load_model():
     dataset = fetch_ucirepo(id=350)
     X = dataset.data.features
     y = dataset.data.targets
-
     df = pd.concat([X, y], axis=1)
     df.columns = [
         'credit_limit', 'gender', 'education', 'marital_status', 'age',
@@ -22,30 +20,21 @@ def load_model():
         'pay_amt_sep', 'pay_amt_aug', 'pay_amt_jul', 'pay_amt_jun', 'pay_amt_may', 'pay_amt_apr',
         'default'
     ]
-
     df['utilisation_ratio'] = df['bill_sep'] / (df['credit_limit'] + 1)
     df['payment_trend'] = df['pay_amt_sep'] - df['pay_amt_apr']
     df['missed_payments'] = (df[['pay_sep','pay_aug','pay_jul','pay_jun','pay_may','pay_apr']] > 0).sum(axis=1)
-
     X = df.drop('default', axis=1)
     y = df['default']
-
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
-
     smote = SMOTE(random_state=42)
     X_train_resampled, y_train_resampled = smote.fit_resample(X_train_scaled, y_train)
-
     model = GradientBoostingClassifier(n_estimators=100, random_state=42)
     model.fit(X_train_resampled, y_train_resampled)
-
     return model, scaler
 
-# Page config
 st.set_page_config(page_title="Credit Risk Scorer", page_icon="💳", layout="wide")
-
 st.title("💳 Credit Risk Scoring Model")
 st.markdown("**McKinsey-style decision support tool** — Enter a customer profile to get an instant risk assessment.")
 
@@ -56,7 +45,6 @@ st.success("Model ready!")
 st.divider()
 
 col1, col2 = st.columns(2)
-
 with col1:
     st.subheader("Customer Profile")
     credit_limit = st.slider("Credit Limit (NT$)", min_value=10000, max_value=1000000, value=200000, step=10000)
@@ -80,7 +68,6 @@ with col2:
 st.divider()
 st.subheader("Bill & Payment Amounts")
 col3, col4 = st.columns(2)
-
 with col3:
     st.caption("Bill amounts (NT$)")
     bill_sep = st.number_input("Bill Sep", value=50000, step=1000)
@@ -102,11 +89,9 @@ with col4:
 st.divider()
 
 if st.button("🔍 Assess Credit Risk", type="primary", use_container_width=True):
-
     utilisation_ratio = bill_sep / (credit_limit + 1)
     payment_trend = pay_amt_sep - pay_amt_apr
     missed_payments = sum([1 for p in [pay_sep, pay_aug, pay_jul, pay_jun, pay_may, pay_apr] if p > 0])
-
     input_data = np.array([[
         credit_limit, gender, education, marital_status, age,
         pay_sep, pay_aug, pay_jul, pay_jun, pay_may, pay_apr,
@@ -114,7 +99,6 @@ if st.button("🔍 Assess Credit Risk", type="primary", use_container_width=True
         pay_amt_sep, pay_amt_aug, pay_amt_jul, pay_amt_jun, pay_amt_may, pay_amt_apr,
         utilisation_ratio, payment_trend, missed_payments
     ]])
-
     input_scaled = scaler.transform(input_data)
     risk_prob = model.predict_proba(input_scaled)[0][1]
 
