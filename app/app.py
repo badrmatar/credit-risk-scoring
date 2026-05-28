@@ -2,14 +2,15 @@ import streamlit as st
 import pickle
 import numpy as np
 
-# Load model, scaler and features
-with open('best_model.pkl', 'rb') as f:
-    model = pickle.load(f)
-with open('scaler.pkl', 'rb') as f:
-    scaler = pickle.load(f)
-with open('feature_names.pkl', 'rb') as f:
-    feature_names = pickle.load(f)
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+with open(os.path.join(BASE_DIR, 'best_model.pkl'), 'rb') as f:
+    model = pickle.load(f)
+with open(os.path.join(BASE_DIR, 'scaler.pkl'), 'rb') as f:
+    scaler = pickle.load(f)
+with open(os.path.join(BASE_DIR, 'feature_names.pkl'), 'rb') as f:
+    feature_names = pickle.load(f)
 # Page config
 st.set_page_config(
     page_title="Credit Risk Scorer",
